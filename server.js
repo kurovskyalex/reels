@@ -240,8 +240,10 @@ app.post('/api/submit', requireAuth, async (req, res) => {
       redirect: 'follow',
     });
 
-    if (!sheetsRes.ok) {
-      console.error('Ошибка Sheets:', await sheetsRes.text());
+    const sheetsData = await sheetsRes.json();
+
+    if (!sheetsRes.ok || sheetsData.error) {
+      console.error('Ошибка Sheets:', sheetsData);
       return res.status(500).json({ error: 'Не удалось сохранить ответы' });
     }
 
