@@ -233,25 +233,12 @@ app.post('/api/submit', requireAuth, async (req, res) => {
   }
 
   try {
-    // Apps Script возвращает 302 redirect — следуем вручную чтобы сохранить метод POST
-    const firstRes = await fetch(SHEETS_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      redirect: 'manual',
-      body: JSON.stringify(payload),
+    // Отправляем GET с параметрами — надёжнее чем POST через Apps Script редиректы
+    const params = new URLSearchParams(payload);
+    const sheetsRes = await fetch(`${SHEETS_WEBHOOK}?${params}`, {
+      method: 'GET',
+      redirect: 'follow',
     });
-
-    let sheetsRes;
-    if (firstRes.status === 301 || firstRes.status === 302) {
-      const redirectUrl = firstRes.headers.get('location');
-      sheetsRes = await fetch(redirectUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } else {
-      sheetsRes = firstRes;
-    }
 
     if (!sheetsRes.ok) {
       console.error('Ошибка Sheets:', await sheetsRes.text());
