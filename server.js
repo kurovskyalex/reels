@@ -1,7 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
-const session = require('express-session');
+const cookieSession = require('cookie-session');
 const path = require('path');
 const { randomBytes } = require('crypto');
 
@@ -28,18 +28,15 @@ const VALID_ANSWERS = new Set(['Видео №1', 'Видео №2']);
 const QUESTION_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'];
 
 app.set('trust proxy', 1); // Railway использует reverse proxy
-app.use(express.json({ limit: '10kb' })); // лимит тела запроса
+app.use(express.json({ limit: '10kb' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
-app.use(session({
-  secret: SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 24 * 60 * 60 * 1000,
-  },
+app.use(cookieSession({
+  name: 'session',
+  keys: [SESSION_SECRET],
+  maxAge: 24 * 60 * 60 * 1000,
+  secure: process.env.NODE_ENV === 'production',
+  httpOnly: true,
+  sameSite: 'lax',
 }));
 
 function requireAuth(req, res, next) {
@@ -259,7 +256,8 @@ app.post('/api/submit', requireAuth, async (req, res) => {
 
 // Выход
 app.get('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/'));
+  req.session = null;
+  res.redirect('/');
 });
 
 app.listen(PORT, () => {
