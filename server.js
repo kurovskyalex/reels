@@ -235,12 +235,14 @@ app.post('/api/submit', requireAuth, async (req, res) => {
   try {
     // Отправляем GET с параметрами — надёжнее чем POST через Apps Script редиректы
     const params = new URLSearchParams(payload);
+    console.log('Отправляем в Sheets:', Object.fromEntries(params));
     const sheetsRes = await fetch(`${SHEETS_WEBHOOK}?${params}`, {
       method: 'GET',
       redirect: 'follow',
     });
 
     const sheetsData = await sheetsRes.json();
+    console.log('Ответ Sheets:', sheetsData);
 
     if (!sheetsRes.ok || sheetsData.error) {
       console.error('Ошибка Sheets:', sheetsData);
