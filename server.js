@@ -27,6 +27,7 @@ const YANDEX_REDIRECT_URI = process.env.YANDEX_REDIRECT_URI || `http://localhost
 const VALID_ANSWERS = new Set(['Видео №1', 'Видео №2']);
 const QUESTION_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'];
 
+app.set('trust proxy', 1); // Railway использует reverse proxy
 app.use(express.json({ limit: '10kb' })); // лимит тела запроса
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use(session({
