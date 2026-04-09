@@ -391,6 +391,45 @@
       animation: bannerPulse 0.65s ease 3;
     }
 
+    /* ── Rating buttons ── */
+    .rating-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .rating-option { flex: 1; min-width: 36px; cursor: pointer; }
+    .rating-option input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .rating-label {
+      display: block;
+      padding: 10px 4px;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--dark);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      user-select: none;
+      cursor: pointer;
+    }
+    .rating-label:hover { border-color: var(--purple); background: var(--purple-light); }
+    .rating-option input[type="radio"]:checked + .rating-label {
+      background: var(--purple);
+      border-color: var(--purple);
+      color: var(--white);
+    }
+    .rating-hint {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--gray);
+      margin-top: 8px;
+    }
+
+    /* ── Video step2 single ── */
+    .videos-row.step2-mode { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .videos-row.step2-mode .video-card:first-child { display: none; }
+
     /* ── Animations ── */
     @keyframes fadeSlideIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -507,59 +546,27 @@
       <div class="step2" id="step2">
 
         <div class="question-card fade-in">
-          <p class="question-text">В каком видео качество озвучки вам понравилось больше?</p>
-          <div class="options">
-            <label class="radio-option">
-              <input type="radio" name="q2" value="Видео №1">
-              <span class="radio-label">Видео №1</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="q2" value="Видео №2">
-              <span class="radio-label">Видео №2</span>
-            </label>
-          </div>
+          <p class="question-text">Поставьте оценку качеству озвучки (голоса) от 0 до 10</p>
+          <div class="rating-options" id="rating-q2"></div>
+          <div class="rating-hint"><span>0 — очень плохо</span><span>10 — отлично</span></div>
         </div>
 
         <div class="question-card fade-in">
-          <p class="question-text">В каком видео лучше выглядит совпадение речи и движения губ?</p>
-          <div class="options">
-            <label class="radio-option">
-              <input type="radio" name="q3" value="Видео №1">
-              <span class="radio-label">Видео №1</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="q3" value="Видео №2">
-              <span class="radio-label">Видео №2</span>
-            </label>
-          </div>
+          <p class="question-text">Поставьте оценку совпадению речи и движения губ от 0 до 10</p>
+          <div class="rating-options" id="rating-q3"></div>
+          <div class="rating-hint"><span>0 — очень плохо</span><span>10 — отлично</span></div>
         </div>
 
         <div class="question-card fade-in">
-          <p class="question-text">В каком видео мимика выглядит более естественно?</p>
-          <div class="options">
-            <label class="radio-option">
-              <input type="radio" name="q4" value="Видео №1">
-              <span class="radio-label">Видео №1</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="q4" value="Видео №2">
-              <span class="radio-label">Видео №2</span>
-            </label>
-          </div>
+          <p class="question-text">Поставьте оценку естественности мимики от 0 до 10</p>
+          <div class="rating-options" id="rating-q4"></div>
+          <div class="rating-hint"><span>0 — очень плохо</span><span>10 — отлично</span></div>
         </div>
 
         <div class="question-card fade-in">
-          <p class="question-text">В каком видео вам больше понравилось качество видеоряда / картинки?</p>
-          <div class="options">
-            <label class="radio-option">
-              <input type="radio" name="q5" value="Видео №1">
-              <span class="radio-label">Видео №1</span>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="q5" value="Видео №2">
-              <span class="radio-label">Видео №2</span>
-            </label>
-          </div>
+          <p class="question-text">Поставьте оценку качеству видеоряда / картинки от 0 до 10</p>
+          <div class="rating-options" id="rating-q5"></div>
+          <div class="rating-hint"><span>0 — очень плохо</span><span>10 — отлично</span></div>
         </div>
 
         <p class="error-msg" id="error-step2" style="margin-top:4px">
@@ -586,6 +593,14 @@
   </main>
 
   <script>
+    // Генерируем кнопки рейтинга 0-10
+    ['q2','q3','q4','q5'].forEach(name => {
+      const container = document.getElementById('rating-' + name);
+      for (let i = 0; i <= 10; i++) {
+        container.innerHTML += `<label class="rating-option"><input type="radio" name="${name}" value="${i}"><span class="rating-label">${i}</span></label>`;
+      }
+    });
+
     // Toast уведомление
     function showToast(message) {
       const existing = document.getElementById('toast');
@@ -661,8 +676,9 @@
         return;
       }
 
-      // Скрываем шаг 1
+      // Скрываем шаг 1, показываем только видео №2
       document.getElementById('step1').style.display = 'none';
+      document.querySelector('.videos-row').classList.add('step2-mode');
 
       // Показываем шаг 2
       const step2 = document.getElementById('step2');

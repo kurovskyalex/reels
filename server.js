@@ -24,8 +24,8 @@ const YANDEX_CLIENT_SECRET = process.env.YANDEX_CLIENT_SECRET;
 const YANDEX_REDIRECT_URI = process.env.YANDEX_REDIRECT_URI || `http://localhost:${PORT}/auth/yandex/callback`;
 
 // Допустимые значения ответов — строгий белый список
-const VALID_ANSWERS = new Set(['Видео №1', 'Видео №2']);
-const QUESTION_KEYS = ['q1', 'q2', 'q3', 'q4', 'q5'];
+const VALID_ANSWERS_Q1 = new Set(['Видео №1', 'Видео №2']);
+const VALID_RATINGS = new Set(['0','1','2','3','4','5','6','7','8','9','10']);
 
 app.set('trust proxy', 1); // Railway использует reverse proxy
 app.use(express.json({ limit: '10kb' }));
@@ -207,8 +207,11 @@ app.post('/api/submit', requireAuth, async (req, res) => {
   }
 
   // Строгая проверка: только допустимые значения из белого списка
-  for (const key of QUESTION_KEYS) {
-    if (!VALID_ANSWERS.has(answers[key])) {
+  if (!VALID_ANSWERS_Q1.has(answers.q1)) {
+    return res.status(400).json({ error: 'Недопустимое значение для вопроса q1' });
+  }
+  for (const key of ['q2', 'q3', 'q4', 'q5']) {
+    if (!VALID_RATINGS.has(answers[key])) {
       return res.status(400).json({ error: `Недопустимое значение для вопроса ${key}` });
     }
   }
