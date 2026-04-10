@@ -1,0 +1,9 @@
+node_modules
+.env
+.git
+test.js
+e2e/
+playwright.config.js
+test-results/
+*.md
+apps-script.gs
