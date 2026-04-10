@@ -261,6 +261,32 @@ app.post('/api/submit', requireAuth, async (req, res) => {
   }
 });
 
+// Тестовый вход — только вне продакшена
+if (process.env.NODE_ENV !== 'production') {
+  app.get('/test-login', (req, res) => {
+    req.session.user = {
+      email: 'test@example.com',
+      name: 'Test User',
+      picture: null,
+    };
+    res.redirect('/');
+  });
+
+  app.get('/test-login/yandex', (req, res) => {
+    req.session.user = {
+      email: 'test@yandex.ru',
+      name: 'Тест Яндекс',
+      picture: null,
+    };
+    res.redirect('/');
+  });
+
+  app.get('/test-reset', (req, res) => {
+    req.session = null;
+    res.json({ ok: true });
+  });
+}
+
 // Выход
 app.get('/logout', (req, res) => {
   req.session = null;
