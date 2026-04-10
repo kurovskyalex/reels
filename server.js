@@ -267,6 +267,10 @@ app.get('/logout', (req, res) => {
   res.redirect('/');
 });
 
-app.listen(PORT, () => {
-  console.log(`Сервер запущен: http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Сервер запущен: http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
